@@ -11,11 +11,11 @@ namespace WebCsharp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventoController : ControllerBase
+    public class EventosController : ControllerBase
     {
         private readonly DataContext dataContext;
 
-        public EventoController(DataContext dataContext)
+        public EventosController(DataContext dataContext)
         {
             this.dataContext = dataContext;
 
