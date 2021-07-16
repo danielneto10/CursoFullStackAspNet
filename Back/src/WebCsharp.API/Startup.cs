@@ -10,6 +10,7 @@ using WebCsharp.Application.Contratos;
 using WebCsharp.Persistence;
 using WebCsharp.Persistence.Contexto;
 using WebCsharp.Persistence.Contratos;
+using System;
 
 namespace WebCsharp.API
 {
@@ -30,6 +31,8 @@ namespace WebCsharp.API
             );
             services.AddControllers()
                 .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IEventoService, EventoService>();
             services.AddScoped<IGeralPersist, GeralPersist>();

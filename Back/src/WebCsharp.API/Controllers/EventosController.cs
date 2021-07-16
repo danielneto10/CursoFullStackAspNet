@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebCsharp.Application.Contratos;
+using WebCsharp.Application.Dtos;
 using WebCsharp.Domain;
 using WebCsharp.Persistence.Contexto;
 
@@ -28,7 +29,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var eventos = await eventoService.GetAllEventosAsync(true);
-                if(eventos == null) return NotFound("Nenhum evento encontrado");
+                if(eventos == null) return NoContent();
 
                 return Ok(eventos);
             }
@@ -44,7 +45,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var evento = await eventoService.GetEventoByIdAsync(id, true);
-                if(evento == null) return NotFound("Evento por id não encontrado.");
+                if(evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -60,8 +61,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var eventos = await eventoService.GetAllEventosByTemaAsync(tema, true);
-                if(eventos == null) return NotFound("Eventos por tema não encontrados.");
-
+                if(eventos == null) return NoContent();
                 return Ok(eventos);
             }
             catch (Exception ex)
@@ -71,12 +71,12 @@ namespace WebCsharp.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Evento model)
+        public async Task<IActionResult> Post(EventoDto model)
         {
             try
             {
                 var evento = await eventoService.AddEvento(model);
-                if(evento == null) return BadRequest("Erro ao tentar adicionar evento.");
+                if(evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -87,12 +87,12 @@ namespace WebCsharp.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Evento model)
+        public async Task<IActionResult> Put(int id, EventoDto model)
         {
             try
             {
                 var evento = await eventoService.UpdateEvento(id, model);
-                if(evento == null) return BadRequest("Erro ao tentar atualizar evento.");
+                if(evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -107,9 +107,10 @@ namespace WebCsharp.API.Controllers
         {
             try
             {
-                if(await eventoService.DeleteEvento(id)) return Ok("Deletado");
+                var evento = await eventoService.GetEventoByIdAsync(id, true);
+                if(evento == null) return NoContent();
 
-                return BadRequest("Evento não deletado");
+                 return await eventoService.DeleteEvento(id) ?  Ok("Deletado") : throw new Exception("Ocorreu um erro ao deletar o evento!");
             }
             catch (Exception ex)
             {

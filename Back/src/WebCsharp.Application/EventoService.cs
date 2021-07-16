@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using WebCsharp.Application.Contratos;
+using WebCsharp.Application.Dtos;
 using WebCsharp.Domain;
 using WebCsharp.Persistence.Contratos;
 
@@ -10,50 +12,57 @@ namespace WebCsharp.Application
     {
         private readonly IEventoPersist eventoPersist;
         private readonly IGeralPersist geralPersist;
-        public EventoService(IGeralPersist geralPersist, IEventoPersist eventoPersist)
+        private readonly IMapper mapper;
+        public EventoService(IGeralPersist geralPersist, IEventoPersist eventoPersist, IMapper mapper)
         {
+            this.mapper = mapper;
             this.geralPersist = geralPersist;
             this.eventoPersist = eventoPersist;
 
         }
 
-        public async Task<Evento> AddEvento(Evento model)
+        public async Task<EventoDto> AddEvento(EventoDto model)
         {
             try
             {
-                geralPersist.Add<Evento>(model);
-                if(await geralPersist.SaveChangesAsync())
+                var evento = mapper.Map<Evento>(model);
+
+                geralPersist.Add<Evento>(evento);
+                if (await geralPersist.SaveChangesAsync())
                 {
-                    return await eventoPersist.GetEventoByIdAsync(model.Id, false);
+                    var retorno = await eventoPersist.GetEventoByIdAsync(evento.Id, false);
+                    return mapper.Map<EventoDto>(retorno);
                 }
                 return null;
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task<Evento> UpdateEvento(int eventoId, Evento model)
+        public async Task<EventoDto> UpdateEvento(int eventoId, EventoDto model)
         {
             try
             {
                 var evento = await eventoPersist.GetEventoByIdAsync(eventoId, false);
-                if(evento == null) return null;
-
+                if (evento == null) return null;
                 model.Id = evento.Id;
+                
+                mapper.Map(model, evento);
 
-                geralPersist.Update(model);
-                if(await geralPersist.SaveChangesAsync())
+                geralPersist.Update<Evento>(evento);
+                if (await geralPersist.SaveChangesAsync())
                 {
-                    return await eventoPersist.GetEventoByIdAsync(model.Id, false);
+                    var retorno = await eventoPersist.GetEventoByIdAsync(evento.Id, false);
+                    return mapper.Map<EventoDto>(retorno);
                 }
                 return null;
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception(ex.Message);
             }
         }
@@ -62,62 +71,68 @@ namespace WebCsharp.Application
             try
             {
                 var evento = await eventoPersist.GetEventoByIdAsync(eventoId, false);
-                if(evento == null) throw new Exception("Evento para delete não foi encontrado!");
+                if (evento == null) throw new Exception("Evento para delete não foi encontrado!");
 
                 geralPersist.Delete<Evento>(evento);
                 return await geralPersist.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task<Evento[]> GetAllEventosAsync(bool includePalestrantes = false)
+        public async Task<EventoDto[]> GetAllEventosAsync(bool includePalestrantes = false)
         {
             try
             {
                 var eventos = await eventoPersist.GetAllEventosAsync(includePalestrantes);
-                if(eventos == null) return null;
+                if (eventos == null) return null;
 
-                return eventos;
+                var eventoDto = mapper.Map<EventoDto[]>(eventos);
+
+                return eventoDto;
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task<Evento[]> GetAllEventosByTemaAsync(string tema, bool includePalestrantes = false)
+        public async Task<EventoDto[]> GetAllEventosByTemaAsync(string tema, bool includePalestrantes = false)
         {
             try
             {
                 var eventos = await eventoPersist.GetAllEventosByTemaAsync(tema, includePalestrantes);
-                if(eventos == null) return null;
+                if (eventos == null) return null;
 
-                return eventos;
+                var eventoDto = mapper.Map<EventoDto[]>(eventos);
+
+                return eventoDto;
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task<Evento> GetEventoByIdAsync(int eventoId, bool includePalestrantes = false)
+        public async Task<EventoDto> GetEventoByIdAsync(int eventoId, bool includePalestrantes = false)
         {
             try
             {
                 var evento = await eventoPersist.GetEventoByIdAsync(eventoId, includePalestrantes);
-                if(evento == null) return null;
+                if (evento == null) return null;
 
-                return evento;
+                var eventoDto = mapper.Map<EventoDto>(evento);
+
+                return eventoDto;
             }
             catch (Exception ex)
             {
-                
+
                 throw new Exception(ex.Message);
             }
         }
