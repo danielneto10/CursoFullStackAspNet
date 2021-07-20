@@ -29,7 +29,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var eventos = await eventoService.GetAllEventosAsync(true);
-                if(eventos == null) return NoContent();
+                if (eventos == null) return NoContent();
 
                 return Ok(eventos);
             }
@@ -45,7 +45,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var evento = await eventoService.GetEventoByIdAsync(id, true);
-                if(evento == null) return NoContent();
+                if (evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -61,7 +61,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var eventos = await eventoService.GetAllEventosByTemaAsync(tema, true);
-                if(eventos == null) return NoContent();
+                if (eventos == null) return NoContent();
                 return Ok(eventos);
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var evento = await eventoService.AddEvento(model);
-                if(evento == null) return NoContent();
+                if (evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -92,7 +92,7 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var evento = await eventoService.UpdateEvento(id, model);
-                if(evento == null) return NoContent();
+                if (evento == null) return NoContent();
 
                 return Ok(evento);
             }
@@ -108,9 +108,9 @@ namespace WebCsharp.API.Controllers
             try
             {
                 var evento = await eventoService.GetEventoByIdAsync(id, true);
-                if(evento == null) return NoContent();
+                if (evento == null) return NoContent();
 
-                 return await eventoService.DeleteEvento(id) ?  Ok("Deletado") : throw new Exception("Ocorreu um erro ao deletar o evento!");
+                return await eventoService.DeleteEvento(id) ? Ok(new { message = "Deletado"}) : throw new Exception("Ocorreu um erro ao deletar o evento!");
             }
             catch (Exception ex)
             {

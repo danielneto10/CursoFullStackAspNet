@@ -9,30 +9,33 @@ import { EventoService } from '@app/services/evento.service';
 @Component({
   selector: 'app-evento-lista',
   templateUrl: './evento-lista.component.html',
-  styleUrls: ['./evento-lista.component.scss']
+  styleUrls: ['./evento-lista.component.scss'],
 })
 export class EventoListaComponent implements OnInit {
   modalRef = {} as BsModalRef;
 
   public eventos: Evento[] = [];
   public eventosFiltrados: Evento[] = [];
+  public eventoId = 0;
 
-  public widthImg: number = 100;
+  public widthImg: number = 150;
   public marginImg: number = 2;
   public exibirImg: boolean = true;
-  private filtroListado: string = '';
+  private filtroListado = '';
 
   public get filtroLista() {
-    return this.filtroListado
+    return this.filtroListado;
   }
 
   public set filtroLista(value: string) {
     this.filtroListado = value;
-    this.eventosFiltrados = this.filtroLista ? this.filtrarEventos(this.filtroLista) : this.eventos
+    this.eventosFiltrados = this.filtroLista
+      ? this.filtrarEventos(this.filtroLista)
+      : this.eventos;
   }
 
   public filtrarEventos(filtrarPor: string): Evento[] {
-    filtrarPor = filtrarPor.toLowerCase();
+    filtrarPor = filtrarPor.toLocaleLowerCase();
     return this.eventos.filter(
       (evento: { tema: string; local: string }) =>
         evento.tema.toLocaleLowerCase().indexOf(filtrarPor) !== -1 ||
@@ -46,38 +49,52 @@ export class EventoListaComponent implements OnInit {
     private toastr: ToastrService,
     private spinner: NgxSpinnerService,
     private router: Router
-    ) { }
+  ) {}
 
   public ngOnInit() {
     this.spinner.show();
-    this.getEventos();
+    this.carregarEventos();
   }
 
   public alterarImg(): void {
     this.exibirImg = !this.exibirImg;
   }
 
-  public getEventos(): void {
-
+  public carregarEventos(): void {
     this.eventoService.getEventos().subscribe({
       next: (eventos: Evento[]) => {
         this.eventos = eventos;
         this.eventosFiltrados = this.eventos;
       },
-      error: error => {
+      error: (error: any) => {
         this.spinner.hide();
         this.toastr.error('Erro ao carregar os Eventos', 'Erro!');
       },
-      complete: () => this.spinner.hide()
+      complete: () => this.spinner.hide(),
     });
   }
 
-  openModal(template: TemplateRef<any>): void {
-    this.modalRef = this.modalService.show(template, {class: 'modal-sm'});
+  openModal(event: any, template: TemplateRef<any>, eventoId: number): void {
+    event.stopPropagation();
+    this.eventoId = eventoId;
+    this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
 
   confirm(): void {
-    this.toastr.success('O Evento foi deletado com sucesso', 'Deletado');
+    this.spinner.show();
+    this.eventoService.deleteEvento(this.eventoId).subscribe({
+      next: (result: any) => {
+        if (result.message === 'Deletado') {
+          this.toastr.success('O Evento foi deletado com sucesso', 'Deletado');
+          this.carregarEventos();
+        }
+      },
+      error: (error: any) => {
+        this.toastr.error(`Erro ao deletar o evento ${this.eventoId}`, 'Erro')
+        console.error(error);
+      }
+    }).add(() => this.spinner.hide());
+
     this.modalRef.hide();
   }
 
