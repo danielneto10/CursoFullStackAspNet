@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebCsharp.Application.Contratos;
 using WebCsharp.Application.Dtos;
-using WebCsharp.Domain;
-using WebCsharp.Persistence.Contexto;
 
 namespace WebCsharp.API.Controllers
 {
