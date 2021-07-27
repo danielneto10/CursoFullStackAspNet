@@ -11,6 +11,9 @@ using WebCsharp.Persistence;
 using WebCsharp.Persistence.Contexto;
 using WebCsharp.Persistence.Contratos;
 using System;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace WebCsharp.API
 {
@@ -66,6 +69,13 @@ namespace WebCsharp.API
             app.UseCors(x => x.AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowAnyOrigin());
+
+            app.UseStaticFiles(new StaticFileOptions() {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "Resources")
+                ),
+               RequestPath = new PathString("/Resources") 
+            });
 
             app.UseEndpoints(endpoints =>
             {

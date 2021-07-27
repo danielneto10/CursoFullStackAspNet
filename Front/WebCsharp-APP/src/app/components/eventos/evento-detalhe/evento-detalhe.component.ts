@@ -13,6 +13,7 @@ import { Evento } from '@app/models/Evento';
 import { Lote } from '@app/models/Lote';
 import { EventoService } from '@app/services/evento.service';
 import { LoteService } from '@app/services/lote.service';
+import { environment } from '@environments/environment';
 
 import { BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -33,6 +34,9 @@ export class EventoDetalheComponent implements OnInit {
   estadoSalvar = 'post';
 
   modalRef = {} as BsModalRef;
+
+  imagemURL = 'assets/upload.jpg';
+  file = {} as File;
 
   get modoEditar(): boolean {
     return this.estadoSalvar === 'put';
@@ -80,6 +84,7 @@ export class EventoDetalheComponent implements OnInit {
     this.localeService.use('pt-br');
   }
 
+  //#region Métodos Relacionados ao Evento
   public carregarEvento(): void {
     this.eventoId = +this.activatedRouter.snapshot.paramMap.get('id')!;
     if (this.eventoId !== null && this.eventoId !== 0) {
@@ -91,6 +96,12 @@ export class EventoDetalheComponent implements OnInit {
           next: (evento: Evento) => {
             this.evento = { ...evento };
             this.form.patchValue(this.evento);
+            if (this.evento.imagemURL !== '') {
+              this.imagemURL =
+                environment.apiURL +
+                'Resources/Images/' +
+                this.evento.imagemURL;
+            }
             this.evento.lotes.forEach((lote) =>
               this.lotes.push(this.criarLote(lote))
             );
@@ -102,59 +113,6 @@ export class EventoDetalheComponent implements OnInit {
         })
         .add(() => this.spinner.hide());
     }
-  }
-
-  ngOnInit(): void {
-    this.validation();
-    this.carregarEvento();
-  }
-
-  public validation(): void {
-    this.form = this.fb.group({
-      tema: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(4),
-          Validators.maxLength(50),
-        ],
-      ],
-      local: ['', Validators.required],
-      dataEvento: ['', Validators.required],
-      qtdPessoas: ['', [Validators.required, Validators.max(120000)]],
-      telefone: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      imagemURL: ['', Validators.required],
-      lotes: this.fb.array([]),
-    });
-  }
-
-  public addLote(): void {
-    this.lotes.push(this.criarLote({ id: 0 } as Lote));
-  }
-
-  public criarLote(lote: Lote): FormGroup {
-    return this.fb.group({
-      id: [lote.id, Validators.required],
-      nome: [lote.nome, Validators.required],
-      quantidade: [lote.quantidade, Validators.required],
-      preco: [lote.preco, Validators.required],
-      dataInicio: [lote.dataInicio, Validators.required],
-      dataFim: [lote.dataFim, Validators.required],
-    });
-  }
-
-  public retornaTituloLote(nome: string): string {
-    return nome == null || !/\S/.test(nome) ? 'Nome do Lote' : nome;
-  }
-
-  public resetForm(): void {
-    console.log('Resetou');
-    this.form.reset();
-  }
-
-  cssValidator(campoForm: FormControl | AbstractControl | null): any {
-    return { 'is-invalid': campoForm?.errors && campoForm?.touched };
   }
 
   public salvarEvento(): void {
@@ -193,6 +151,25 @@ export class EventoDetalheComponent implements OnInit {
           .add(() => this.spinner.hide());
       }
     }
+  }
+
+  //#endregion
+
+  //#region Métodos relacionado ao Lote
+
+  public addLote(): void {
+    this.lotes.push(this.criarLote({ id: 0 } as Lote));
+  }
+
+  public criarLote(lote: Lote): FormGroup {
+    return this.fb.group({
+      id: [lote.id, Validators.required],
+      nome: [lote.nome, Validators.required],
+      quantidade: [lote.quantidade, Validators.required],
+      preco: [lote.preco, Validators.required],
+      dataInicio: [lote.dataInicio, Validators.required],
+      dataFim: [lote.dataFim, Validators.required],
+    });
   }
 
   public salvarLotes(): void {
@@ -251,4 +228,79 @@ export class EventoDetalheComponent implements OnInit {
   public declineDeleteLote(): void {
     this.modalRef.hide();
   }
+
+  public retornaTituloLote(nome: string): string {
+    return nome == null || !/\S/.test(nome) ? 'Nome do Lote' : nome;
+  }
+
+  //#endregion
+
+  ngOnInit(): void {
+    this.validation();
+    this.carregarEvento();
+  }
+
+  public validation(): void {
+    this.form = this.fb.group({
+      tema: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.maxLength(50),
+        ],
+      ],
+      local: ['', Validators.required],
+      dataEvento: ['', Validators.required],
+      qtdPessoas: ['', [Validators.required, Validators.max(120000)]],
+      telefone: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      imagemURL: [''],
+      lotes: this.fb.array([]),
+    });
+  }
+
+  public resetForm(): void {
+    console.log('Resetou');
+    this.form.reset();
+  }
+
+  cssValidator(campoForm: FormControl | AbstractControl | null): any {
+    return { 'is-invalid': campoForm?.errors && campoForm?.touched };
+  }
+
+  //#region Métodos relacionados ao upload da Imagem
+
+  public onFileChange(ev: any): void {
+    const reader = new FileReader();
+
+    //reader.onload = (event: any) => this.imagemURL = event.target.result;
+    reader.onload = () => {
+      this.imagemURL = reader.result as string;
+    };
+
+    this.file = ev.target.files[0];
+    reader.readAsDataURL(this.file);
+
+    this.uploadImagem();
+  }
+
+  public uploadImagem(): void {
+    this.spinner.show();
+    this.eventoService
+      .postUpload(this.eventoId, this.file)
+      .subscribe(
+        () => {
+          this.carregarEvento();
+          this.toastr.success('Imagem atualizada com sucesso', 'Sucesso');
+        },
+        (error: any) => {
+          console.error(error);
+          this.toastr.error(`Erro ao carregar imagem`, 'Erro');
+        }
+      )
+      .add(() => this.spinner.hide());
+  }
+
+  //#endregion
 }
