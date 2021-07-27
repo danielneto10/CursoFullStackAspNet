@@ -9,7 +9,7 @@
             <div class="form-group col-md-12">
               <label>Tema</label>
               <input type="text" class="form-control" [ngClass]="cssValidator(f.tema)" [formControlName]="'tema'"
-                placeholder="Insira o Tema" [(ngModel)]="evento.tema">
+                placeholder="Insira o Tema">
               <div *ngIf="f.tema.errors?.required" class="invalid-feedback">
                 Tema é obrigatório
               </div>
@@ -25,14 +25,14 @@
             <div class="form-group col-md-8">
               <label>Local</label>
               <input type="text" class="form-control" [ngClass]="cssValidator(f.local)" formControlName="local"
-                placeholder="" [(ngModel)]="evento.local">
+                placeholder="">
               <div *ngIf="f.local.errors?.required && f.local.touched" class="invalid-feedback">Local é obrigatório
               </div>
             </div>
             <div class="form-group col-md-4">
               <label>Data e Hora</label>
               <input type="datetime" class="form-control" [ngClass]="cssValidator(f.dataEvento)"
-                formControlName="dataEvento" placeholder="" bsDatepicker [bsConfig]="bsconfig" [(ngModel)]="evento.dataEvento">
+                formControlName="dataEvento" placeholder="" bsDatepicker [bsConfig]="bsconfig">
               <div *ngIf="f.dataEvento.errors?.required && f.dataEvento.touched" class="invalid-feedback">Data e Hora é
                 obrigatório</div>
             </div>
@@ -41,7 +41,7 @@
             <div class="form-group col-md-2">
               <label>Qtd Pessoas</label>
               <input type="number" class="form-control" [ngClass]="cssValidator(f.qtdPessoas)"
-                formControlName="qtdPessoas" placeholder="" [(ngModel)]="evento.qtdPessoas">
+                formControlName="qtdPessoas" placeholder="">
               <div *ngIf="f.qtdPessoas.errors?.required && f.qtdPessoas.touched" class="invalid-feedback">QtdPessoas é
                 obrigatório</div>
               <div *ngIf="f.qtdPessoas.errors?.max && f.qtdPessoas.touched" class="invalid-feedback">QtdPessoas deve ser
@@ -50,7 +50,7 @@
             <div class="form-group col-md-4">
               <label>Telefone</label>
               <input type="text" class="form-control" [ngClass]="cssValidator(f.telefone)" formControlName="telefone"
-                placeholder="(000) 90000-0000" [(ngModel)]="evento.telefone">
+                placeholder="(000) 90000-0000">
               <div *ngIf="f.telefone.errors?.required && f.telefone.touched" class="invalid-feedback">Telefoneé
                 obrigatório
               </div>
@@ -58,7 +58,7 @@
             <div class="form-group col-md-6">
               <label>Email</label>
               <input type="text" class="form-control" [ngClass]="cssValidator(f.email)" formControlName="email"
-                placeholder="e-mail" [(ngModel)]="evento.email">
+                placeholder="e-mail">
               <div *ngIf="f.email.errors?.required && f.email.touched" class="invalid-feedback">Email é obrigatório
               </div>
               <div *ngIf="f.email.errors?.email && f.email.touched" class="invalid-feedback">Email deve ser válido</div>
@@ -165,22 +165,22 @@
           tooltip="Uplaod de Nova Imagem" [adaptivePosition]="false" placement="bottom">
         </div>
         <div class="card-body pt-3">
-          <h4>{{evento.tema}}</h4>
+          <h4>{{f.tema.value}}</h4>
           <p class="card-text">
-            <b>Local:</b> {{evento.local}}
+            <b>Local:</b> {{f.local.value}}
             <br>
-            <b>Data:</b> {{evento.dataEvento | date: "dd/MM/yyyy hh:mm a"}}
+            <b>Data:</b> {{f.dataEvento.value}}
           </p>
           <hr>
           <p class="card-text">
             <b>Contatos</b><br>
-            <small class="text-muted">Telefone: {{evento.telefone}}</small>
+            <small class="text-muted">Telefone: {{f.telefone.value}}</small>
             <br>
-            <small class="text-muted">Email: {{evento.email}}</small>
+            <small class="text-muted">Email: {{f.email.value}}</small>
           </p>
           <p class="card-text">
             Capacidade:
-            <small class="text-muted">{{evento.qtdPessoas}}</small>
+            <small class="text-muted">{{f.qtdPessoas.value}}</small>
           </p>
           <div class="row">
             <div class="icon-block col-md-8 iconesSociais">

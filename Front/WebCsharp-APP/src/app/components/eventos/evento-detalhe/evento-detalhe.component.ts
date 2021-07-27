@@ -291,7 +291,7 @@ export class EventoDetalheComponent implements OnInit {
       .postUpload(this.eventoId, this.file)
       .subscribe(
         () => {
-          this.carregarEvento();
+          this.router.navigate([`eventos/detalhe/${this.eventoId}`]);
           this.toastr.success('Imagem atualizada com sucesso', 'Sucesso');
         },
         (error: any) => {
